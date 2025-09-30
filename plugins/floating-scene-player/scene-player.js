@@ -30,7 +30,7 @@
                 })
             });
             const data = await response.json();
-            const settings = data.data?.configuration?.plugins?.['scene-player-enhanced'] || {};
+            const settings = data.data?.configuration?.plugins?.['floating-scene-player'] || {};
             console.log('[Floating Scene Player] Settings loaded:', settings);
             return settings;
         } catch (error) {

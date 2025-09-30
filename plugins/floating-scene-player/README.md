@@ -59,11 +59,11 @@ Add this URL to your Stash plugin sources in **Settings → Plugins → Availabl
 
 1. Copy the plugin folder to your Stash plugins directory:
    ```
-   /var/lib/stashapp/config/plugins/scene-player-enhanced/
+   /var/lib/stashapp/config/plugins/floating-scene-player/
    ```
 
 2. Ensure the folder contains:
-   - `scene-player-enhanced.yml` (plugin configuration)
+   - `floating-scene-player.yml` (plugin configuration)
    - `scene-player.js` (plugin code)
    - `README.md` (this file)
 
