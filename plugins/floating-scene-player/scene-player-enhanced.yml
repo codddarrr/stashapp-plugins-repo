@@ -1,0 +1,15 @@
+name: Floating Scene Player
+description: Enhanced scene player with floating video and seamless navigation
+version: 0.1
+settings:
+  customButtonCSS:
+    displayName: Custom Button CSS
+    description: 'Additional CSS styling to apply to the launch button (e.g., "border-radius: 50%; background-color: #ff0000;")'
+    type: STRING
+  customPlayerCSS:
+    displayName: Custom Player CSS
+    description: 'Additional CSS styling to apply to the floating player container (e.g., "border: 3px solid #00ff00;")'
+    type: STRING
+ui:
+  javascript:
+    - scene-player.js

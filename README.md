@@ -1,24 +1,61 @@
-# Template for creating Stash plugins source index
+# StashApp Plugins
 
-This template allows you to create a new repository with a few clicks with preconfigured GitHub action to publish your plugins source index. 
-_This assumes you already know how to create plugins for Stash. If you don't, first read [this](https://docs.stashapp.cc/in-app-manual/plugins/#creating-plugins)._
+A collection of plugins for [Stash](https://stashapp.cc), the self-hosted adult content management system.
 
-## How to use it?
+## Available Plugins
 
-1. Click **Use this template** > **Create a new repository**. 
-1. Choose a repository name and click **Create repository**.
-1. Open **Settings** and head to **Pages**.
-1. Under Build and deployment select the Source as GitHub Actions.
+### Floating Scene Player
+A powerful plugin that enhances the Stash scene browsing experience with a floating video player, seamless navigation, and smart thumbnail interactions.
 
-Now add your plugins to [plugins](/plugins) directory and they will be automatically published to the source index.
+[View Documentation →](plugins/floating-scene-player/)
 
-Source index URL: [`https://<your-username>.github.io/<repository-name>/main/index.yml`](https://<your-username>.github.io/<repository-name>/main/index.yml)
+**Key Features:**
+- Floating, draggable, and resizable video player
+- Smart thumbnail interactions with hover preview
+- Quick navigation links to performers, tags, and studios
+- Mobile-friendly with touch support
+- Auto-orientation based on video aspect ratio
 
-## Share your plugins
+## Installation
 
-- [Create a new topic](https://discourse.stashapp.cc/t/-/33) for your plugin on the community forum.
-- [Add your source index to the list](https://discourse.stashapp.cc/t/-/122) on the Stash community forum.
+### Via Plugin Repository
+
+Add this plugin source to your Stash instance:
+
+**Plugin Index URL:** `https://codddarrr.github.io/stashapp-plugins-repo/main/index.yml`
+
+1. Open Stash and navigate to **Settings → Plugins → Available Plugins**
+2. Click **Add Source**
+3. Paste the URL above
+4. Browse and install plugins directly through the Stash UI
+
+### Manual Installation
+
+1. Clone this repository or download individual plugin folders
+2. Copy the plugin folder to your Stash plugins directory:
+   ```
+   /var/lib/stashapp/config/plugins/<plugin-name>/
+   ```
+3. Restart Stash or reload plugins from **Settings → Plugins**
+4. Enable the plugin
+
+## Contributing
+
+Contributions are welcome! If you have a plugin you'd like to add to this repository:
+
+1. Fork this repository
+2. Add your plugin to the `plugins/` directory
+3. Include a README.md with documentation
+4. Submit a pull request
+
+## Resources
+
+- [Stash Documentation](https://docs.stashapp.cc/)
+- [Creating Plugins Guide](https://docs.stashapp.cc/in-app-manual/plugins/#creating-plugins)
+- [Stash Community Forum](https://discourse.stashapp.cc/)
+- [Share Your Plugins](https://discourse.stashapp.cc/t/-/33)
+- [Community Plugin Sources](https://discourse.stashapp.cc/t/-/122)
 
 ## License
 
-The default license is set to [AGPL-3.0](/LICENCE). Before publishing any plugins you can change it.
+This repository is licensed under [AGPL-3.0](LICENSE). Individual plugins may have their own licenses.
