@@ -5,12 +5,12 @@ A powerful plugin that enhances the Stash scene browsing experience with a float
 ## Features
 
 ### 🎬 Floating Video Player
-- **Launch Button**: Click the ⛶ button in the bottom-right corner to open the floating player
-- **Always Available**: The player stays visible while browsing any scenes page
+- **Launch Button**: Click the ⛶ button in the bottom-right corner to toggle the floating player
+- **Persistent Mode**: Optional setting to keep player open across all pages while browsing
 - **Draggable**: Click and drag the title bar to reposition the player anywhere on screen (works on mobile!)
 - **Resizable**: Drag the resize handle in the bottom-right corner to adjust size (touch-friendly 40×40px handle)
 - **Auto-Orientation**: Automatically resizes to vertical (360×720px) or horizontal (640×460px) based on video aspect ratio
-- **Close Button**: Click the × button in the title bar to hide the player
+- **Theme Matching**: Automatically adapts to your Stash UI theme colors (configurable)
 
 ### 🔗 Smart Navigation Links
 When a video is playing, navigation links appear in the footer:
@@ -24,26 +24,24 @@ When a video is playing, navigation links appear in the footer:
 - **Click Behavior**:
   - If player is hidden: Normal link behavior (navigates to scene page)
   - If player is visible: Loads the clicked scene in the floating player
-- **Hover Preview** (only when player is visible):
-  - Hover over thumbnails for 500ms to preview the video
-  - No accidental triggers when player is hidden
+- **Hover Preview** (configurable, disabled by default):
+  - When enabled, hover over thumbnails for 500ms to preview the video
+  - Only works when player is visible to prevent accidental triggers
 
 ### 📱 Mobile Support
 - **Touch Dragging**: Drag the title bar with your finger to move the player
 - **Touch Resizing**: Drag the resize handle in the corner to resize
 - **Responsive**: Works seamlessly on both desktop and mobile devices
 
-### 🌐 Wide Compatibility
-Works on specific pages with scene content:
-- Scene list pages (`/scenes`)
-- Scene detail pages (`/scenes/123`)
-- Specific performer pages (`/performers/123`)
-- Specific tag pages (`/tags/123`)
-- Specific studio pages (`/studios/123`)
-- Movie pages with IDs
-
-**Does NOT appear on:**
-- Main list pages (`/performers`, `/tags`, `/studios`, `/images`, `/galleries`)
+### 🌐 Compatibility Modes
+- **Standard Mode** (default): Works on specific pages with scene content
+  - Scene list pages (`/scenes`)
+  - Scene detail pages (`/scenes/123`)
+  - Specific performer pages (`/performers/123`)
+  - Specific tag pages (`/tags/123`)
+  - Specific studio pages (`/studios/123`)
+  - Movie pages with IDs
+- **Persistent Mode** (when enabled): Player available on all pages, stays open during navigation
 
 ## Installation
 
@@ -86,7 +84,16 @@ Add this URL to your Stash plugin sources in **Settings → Plugins → Availabl
 
 ## Configuration
 
-The plugin offers two customization settings accessible in **Settings → Plugins → Floating Scene Player**:
+The plugin offers several customization settings accessible in **Settings → Plugins → Floating Scene Player**:
+
+### Use UI Theme Colors
+Apply your current Stash UI theme colors to the player (default: **enabled**). When enabled, the player will automatically match your Stash interface theme.
+
+### Enable Hover Autoplay
+Auto-play video preview when hovering over thumbnails (default: **disabled**). When enabled, hovering over a scene thumbnail for 500ms will load it in the floating player. Only works when the player is visible.
+
+### Keep Player Open Across Pages
+Player stays open when navigating between pages (default: **disabled**). When enabled, the player and its current video persist as you browse different Stash pages, allowing you to watch while performing other tasks like scanning or tagging.
 
 ### Custom Button CSS
 Apply additional CSS styling to the launch button. The custom CSS is appended to the base button styles.

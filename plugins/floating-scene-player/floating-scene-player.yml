@@ -1,7 +1,19 @@
 name: Floating Scene Player
 description: Enhanced scene player with floating video and seamless navigation
-version: 0.1
+version: 0.2
 settings:
+  useThemeColors:
+    displayName: Use UI Theme Colors
+    description: 'Apply current Stash UI theme colors to the player (default: enabled)'
+    type: BOOLEAN
+  hoverAutoplay:
+    displayName: Enable Hover Autoplay
+    description: 'Auto-play video preview when hovering over thumbnails (default: disabled)'
+    type: BOOLEAN
+  persistentPlayer:
+    displayName: Keep Player Open Across Pages
+    description: 'Player stays open when navigating between pages (default: disabled)'
+    type: BOOLEAN
   customButtonCSS:
     displayName: Custom Button CSS
     description: 'Additional CSS styling to apply to the launch button (e.g., "border-radius: 50%; background-color: #ff0000;")'

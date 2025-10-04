@@ -19,23 +19,39 @@
         return { x: e.clientX, y: e.clientY };
     };
 
-    // Fetch plugin settings from GraphQL
+    // Fetch plugin settings and UI configuration from GraphQL
     async function getPluginSettings() {
         try {
             const response = await fetch('/graphql', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    query: 'query Configuration { configuration { plugins } }'
+                    query: `query Configuration {
+                        configuration {
+                            plugins
+                            ui
+                        }
+                    }`
                 })
             });
             const data = await response.json();
             const settings = data.data?.configuration?.plugins?.['floating-scene-player'] || {};
+            const uiConfig = data.data?.configuration?.ui || {};
+
+            // Set defaults
+            if (settings.useThemeColors === undefined) settings.useThemeColors = true;
+            if (settings.hoverAutoplay === undefined) settings.hoverAutoplay = false;
+            if (settings.persistentPlayer === undefined) settings.persistentPlayer = false;
+
             console.log('[Floating Scene Player] Settings loaded:', settings);
-            return settings;
+            console.log('[Floating Scene Player] UI Config:', uiConfig);
+            return { settings, uiConfig };
         } catch (error) {
             console.error('[Floating Scene Player] Error loading settings:', error);
-            return {};
+            return {
+                settings: { useThemeColors: true, hoverAutoplay: false, persistentPlayer: false },
+                uiConfig: {}
+            };
         }
     }
 
@@ -84,11 +100,10 @@
     }
 
     // Create launch button
-    async function createLaunchButton() {
+    async function createLaunchButton(config) {
         if (launchButton) return;
 
-        // Fetch plugin settings
-        const settings = await getPluginSettings();
+        const { settings } = config;
         const customCSS = settings.customButtonCSS || '';
         console.log('[Floating Scene Player] Applying button CSS:', customCSS);
 
@@ -113,57 +128,77 @@
         launchButton.style.cssText = finalStyles;
 
         launchButton.onclick = () => {
-            showPlayer();
+            if (isPlayerVisible) {
+                hidePlayer();
+            } else {
+                showPlayer();
+            }
         };
 
         document.body.appendChild(launchButton);
     }
 
-    // Show player and hide launch button
+    // Show player and update launch button
     function showPlayer() {
         if (floatingPlayer) {
             floatingPlayer.style.display = 'flex';
             isPlayerVisible = true;
         }
         if (launchButton) {
-            launchButton.style.display = 'none';
+            launchButton.innerHTML = '▼';
+            launchButton.title = 'Hide Scene Player';
         }
     }
 
-    // Hide player and show launch button
+    // Hide player and update launch button
     function hidePlayer() {
         if (floatingPlayer) {
             floatingPlayer.style.display = 'none';
             isPlayerVisible = false;
-            // Pause and clear video
+            // Pause video but keep the source for persistent mode
             if (floatingVideo) {
                 floatingVideo.pause();
-                floatingVideo.src = '';
-            }
-            currentSceneId = null;
-            currentSceneTitle = null;
-            const titleText = document.getElementById('player-title-text');
-            if (titleText) titleText.textContent = 'No scene selected';
-            const placeholder = document.getElementById('player-placeholder');
-            if (placeholder) placeholder.style.display = 'block';
-            const navBar = document.getElementById('player-nav-bar');
-            if (navBar) {
-                navBar.style.display = 'none';
-                navBar.innerHTML = '';
             }
         }
         if (launchButton) {
-            launchButton.style.display = 'flex';
+            launchButton.innerHTML = '⛶';
+            launchButton.title = 'Show Scene Player';
         }
     }
 
+    // Get theme colors from UI configuration
+    function getThemeColors(uiConfig, useTheme) {
+        if (!useTheme) {
+            return {
+                background: '#1a1a1a',
+                titleBar: 'linear-gradient(to bottom, #2a2a2a, #1a1a1a)',
+                border: '#444',
+                text: '#fff'
+            };
+        }
+
+        // Extract theme colors from CSS variables or UI config
+        const rootStyles = getComputedStyle(document.documentElement);
+        const primaryColor = rootStyles.getPropertyValue('--primary') || uiConfig.primaryColor || '#007bff';
+        const backgroundColor = rootStyles.getPropertyValue('--body-bg') || uiConfig.backgroundColor || '#1a1a1a';
+        const borderColor = rootStyles.getPropertyValue('--border-color') || '#444';
+        const textColor = rootStyles.getPropertyValue('--text-color') || '#fff';
+
+        return {
+            background: backgroundColor,
+            titleBar: `linear-gradient(to bottom, ${primaryColor}22, ${backgroundColor})`,
+            border: borderColor,
+            text: textColor
+        };
+    }
+
     // Create floating player
-    async function createFloatingPlayer() {
+    async function createFloatingPlayer(config) {
         if (floatingPlayer) return;
 
-        // Fetch plugin settings
-        const settings = await getPluginSettings();
+        const { settings, uiConfig } = config;
         const customPlayerCSS = settings.customPlayerCSS || '';
+        const themeColors = getThemeColors(uiConfig, settings.useThemeColors);
 
         floatingPlayer = document.createElement('div');
         floatingPlayer.id = 'stash-floating-player';
@@ -189,6 +224,8 @@
                 min-height: 300px;
                 max-width: 80vw;
                 max-height: 80vh;
+                background: ${themeColors.background};
+                border: 2px solid ${themeColors.border};
             `;
             floatingPlayer.style.cssText = basePlayerStyles + (customPlayerCSS ? '; ' + customPlayerCSS : '');
 
@@ -196,9 +233,9 @@
             const titleBar = document.createElement('div');
             titleBar.id = 'player-title-bar';
             titleBar.style.cssText = `
-                background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+                background: ${themeColors.titleBar};
                 padding: 8px 12px;
-                color: white;
+                color: ${themeColors.text};
                 font-size: 14px;
                 display: flex;
                 justify-content: space-between;
@@ -244,7 +281,11 @@
             };
             closeBtn.onclick = (e) => {
                 e.stopPropagation();
-                hidePlayer();
+                if (settings.persistentPlayer) {
+                    hidePlayer(); // Just hide, don't destroy
+                } else {
+                    hidePlayer();
+                }
             };
 
             titleBar.appendChild(titleText);
@@ -636,7 +677,8 @@
     }
 
     // Setup thumbnail interactions
-    function setupThumbnailInteractions() {
+    function setupThumbnailInteractions(config) {
+        const { settings } = config;
         // Try broader selectors, but exclude nav bar links
         const thumbnails = document.querySelectorAll('a[href*="/scenes/"], .scene-card, [class*="scene"], [class*="Scene"], .grid-item, .wall-item');
 
@@ -670,26 +712,28 @@
                 // When player is hidden, allow normal link behavior
             });
 
-            // Hover to preview (only if player is visible)
-            thumb.addEventListener('mouseenter', () => {
-                if (!isPlayerVisible) return; // Don't preview if player is hidden
+            // Hover to preview (only if enabled and player is visible)
+            if (settings.hoverAutoplay) {
+                thumb.addEventListener('mouseenter', () => {
+                    if (!isPlayerVisible) return; // Don't preview if player is hidden
 
-                clearTimeout(hoverTimeout);
-                thumb.style.transform = 'scale(1.02)';
-                thumb.style.transition = 'transform 0.2s ease';
-                thumb.style.zIndex = '1000';
+                    clearTimeout(hoverTimeout);
+                    thumb.style.transform = 'scale(1.02)';
+                    thumb.style.transition = 'transform 0.2s ease';
+                    thumb.style.zIndex = '1000';
 
-                // Load video on hover after a short delay
-                hoverTimeout = setTimeout(() => {
-                    loadVideoInPlayer(sceneId, title);
-                }, 500);
-            });
+                    // Load video on hover after a short delay
+                    hoverTimeout = setTimeout(() => {
+                        loadVideoInPlayer(sceneId, title);
+                    }, 500);
+                });
 
-            thumb.addEventListener('mouseleave', () => {
-                clearTimeout(hoverTimeout);
-                thumb.style.transform = 'scale(1)';
-                thumb.style.zIndex = '';
-            });
+                thumb.addEventListener('mouseleave', () => {
+                    clearTimeout(hoverTimeout);
+                    thumb.style.transform = 'scale(1)';
+                    thumb.style.zIndex = '';
+                });
+            }
 
             // Visual indicator that it's clickable
             thumb.style.cursor = 'pointer';
@@ -697,28 +741,67 @@
     }
 
 
+    // Store plugin config globally
+    let pluginConfig = null;
+
     // Initialize based on page type
     async function initialize() {
-        detectPageType();
-
-        // Only run on supported pages
-        if (!isSceneListPage) {
-            return;
+        // Load config once
+        if (!pluginConfig) {
+            pluginConfig = await getPluginSettings();
         }
 
-        await createFloatingPlayer();
-        await createLaunchButton();
-        setupThumbnailInteractions();
+        detectPageType();
 
-        // Monitor for new thumbnails
-        const observer = new MutationObserver(() => {
-            setupThumbnailInteractions();
-        });
+        const { settings } = pluginConfig;
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+        // Handle persistent player mode
+        if (settings.persistentPlayer) {
+            // Create player and button once, keep them across navigation
+            if (!floatingPlayer) {
+                await createFloatingPlayer(pluginConfig);
+            }
+            if (!launchButton) {
+                await createLaunchButton(pluginConfig);
+            }
+            // Always setup thumbnail interactions on current page
+            setupThumbnailInteractions(pluginConfig);
+
+            // Monitor for new thumbnails
+            if (!window.thumbnailObserver) {
+                window.thumbnailObserver = new MutationObserver(() => {
+                    setupThumbnailInteractions(pluginConfig);
+                });
+
+                window.thumbnailObserver.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        } else {
+            // Non-persistent mode: only create on supported pages
+            if (!isSceneListPage) {
+                return;
+            }
+
+            if (!floatingPlayer) {
+                await createFloatingPlayer(pluginConfig);
+            }
+            if (!launchButton) {
+                await createLaunchButton(pluginConfig);
+            }
+            setupThumbnailInteractions(pluginConfig);
+
+            // Monitor for new thumbnails
+            const observer = new MutationObserver(() => {
+                setupThumbnailInteractions(pluginConfig);
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
 
         // On single scene detail pages, auto-load the scene
         if (/^\/scenes\/\d+$/.test(window.location.pathname)) {
@@ -731,25 +814,35 @@
 
     // Handle navigation changes (for SPAs)
     let lastPath = window.location.pathname;
-    const checkNavigation = setInterval(() => {
+    const checkNavigation = setInterval(async () => {
         if (window.location.pathname !== lastPath) {
             lastPath = window.location.pathname;
 
-            // Clean up existing player and button
-            if (floatingPlayer) {
-                floatingPlayer.remove();
-                floatingPlayer = null;
-                floatingVideo = null;
-                currentSceneId = null;
-                currentSceneTitle = null;
-            }
-            if (launchButton) {
-                launchButton.remove();
-                launchButton = null;
-            }
+            // Reload config in case settings changed
+            pluginConfig = await getPluginSettings();
+            const { settings } = pluginConfig;
 
-            // Reinitialize (will create button only on supported pages)
-            setTimeout(initialize, 500);
+            if (settings.persistentPlayer) {
+                // Keep player and button, just reinitialize thumbnails
+                setTimeout(initialize, 500);
+            } else {
+                // Non-persistent: clean up and reinitialize
+                if (floatingPlayer) {
+                    floatingPlayer.remove();
+                    floatingPlayer = null;
+                    floatingVideo = null;
+                    currentSceneId = null;
+                    currentSceneTitle = null;
+                    isPlayerVisible = false;
+                }
+                if (launchButton) {
+                    launchButton.remove();
+                    launchButton = null;
+                }
+
+                // Reinitialize (will create button only on supported pages)
+                setTimeout(initialize, 500);
+            }
         }
     }, 1000);
 
