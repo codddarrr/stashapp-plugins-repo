@@ -179,16 +179,17 @@
 
         // Extract theme colors from CSS variables or UI config
         const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles.getPropertyValue('--primary') || uiConfig.primaryColor || '#007bff';
-        const backgroundColor = rootStyles.getPropertyValue('--body-bg') || uiConfig.backgroundColor || '#1a1a1a';
-        const borderColor = rootStyles.getPropertyValue('--border-color') || '#444';
-        const textColor = rootStyles.getPropertyValue('--text-color') || '#fff';
+        const primaryColor = (rootStyles.getPropertyValue('--primary') || uiConfig.primaryColor || '#007bff').trim();
+        const backgroundColor = (rootStyles.getPropertyValue('--body-bg') || uiConfig.backgroundColor || '#1a1a1a').trim();
+        const borderColor = (rootStyles.getPropertyValue('--border-color') || '#444').trim();
+        const textColor = (rootStyles.getPropertyValue('--text-color') || '#fff').trim();
 
+        // Fallback to defaults if values are empty after trim
         return {
-            background: backgroundColor,
-            titleBar: `linear-gradient(to bottom, ${primaryColor}22, ${backgroundColor})`,
-            border: borderColor,
-            text: textColor
+            background: backgroundColor || '#1a1a1a',
+            titleBar: `linear-gradient(to bottom, ${primaryColor || '#2a2a2a'}22, ${backgroundColor || '#1a1a1a'})`,
+            border: borderColor || '#444',
+            text: textColor || '#fff'
         };
     }
 
@@ -216,16 +217,14 @@
                 border-radius: 8px;
                 overflow: hidden;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-                background: #1a1a1a;
-                border: 2px solid #444;
+                background: ${themeColors.background};
+                border: 2px solid ${themeColors.border};
                 display: none;
                 flex-direction: column;
                 min-width: 320px;
                 min-height: 300px;
                 max-width: 80vw;
                 max-height: 80vh;
-                background: ${themeColors.background};
-                border: 2px solid ${themeColors.border};
             `;
             floatingPlayer.style.cssText = basePlayerStyles + (customPlayerCSS ? '; ' + customPlayerCSS : '');
 
