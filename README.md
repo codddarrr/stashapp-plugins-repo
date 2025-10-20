@@ -16,6 +16,18 @@ A powerful plugin that enhances the Stash scene browsing experience with a float
 - Mobile-friendly with touch support
 - Auto-orientation based on video aspect ratio
 
+### Prowlarr Search
+Adds a "Prowl" button to performer pages that searches your Prowlarr indexers for adult content related to that performer.
+
+[View Documentation →](plugins/prowlarr-search/)
+
+**Key Features:**
+- One-click search button on performer pages
+- Searches performer name and all aliases
+- Opens one tab per search term for comprehensive results
+- Filters to XXX/Adult category indexers automatically
+- Seamless integration with existing performer action buttons
+
 ## Installation
 
 ### Via Plugin Repository

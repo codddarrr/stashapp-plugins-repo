@@ -1,0 +1,21 @@
+name: Prowlarr Search
+description: Adds a "Prowl" button to performer pages to search Prowlarr indexers for XXX content
+version: 1.0.0
+settings:
+  prowlarrUrl:
+    displayName: Prowlarr Server URL
+    description: 'The base URL of your Prowlarr server (e.g., http://localhost:9696)'
+    type: STRING
+  searchAllAliases:
+    displayName: Search All Aliases
+    description: 'Open one tab per performer alias (default: enabled)'
+    type: BOOLEAN
+    default: true
+  xxxCategoryOnly:
+    displayName: XXX Category Only
+    description: 'Only search indexers with XXX category (default: enabled)'
+    type: BOOLEAN
+    default: true
+ui:
+  javascript:
+    - prowlarr-search.js
