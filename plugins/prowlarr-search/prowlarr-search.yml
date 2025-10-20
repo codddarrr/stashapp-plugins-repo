@@ -1,6 +1,6 @@
 name: Prowlarr Search
 description: Adds a "Prowl" button to performer pages to search Prowlarr indexers for XXX content
-version: 1.0.0
+version: 1.0.1
 settings:
   prowlarrUrl:
     displayName: Prowlarr Server URL
