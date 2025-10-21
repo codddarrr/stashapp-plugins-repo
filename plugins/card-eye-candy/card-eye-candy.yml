@@ -1,0 +1,55 @@
+name: Card Eye Candy
+description: Adds stunning visual effects to card containers (performers, scenes, galleries, tags) with customizable parallax and 3D tilt animations
+version: 1.0.0
+settings:
+  effectIntensity:
+    displayName: Effect Intensity
+    description: 'Control the intensity of the tilt effect (0-50, default: 15)'
+    type: NUMBER
+  glareEffect:
+    displayName: Enable Glare Effect
+    description: 'Add a subtle glare overlay when tilting (default: enabled)'
+    type: BOOLEAN
+  maxGlare:
+    displayName: Glare Intensity
+    description: 'Maximum glare opacity (0.0-1.0, default: 0.3)'
+    type: NUMBER
+  scaleOnHover:
+    displayName: Scale on Hover
+    description: 'Slightly enlarge cards when hovering (default: enabled)'
+    type: BOOLEAN
+  scaleAmount:
+    displayName: Scale Amount
+    description: 'How much to scale on hover (1.0-1.2, default: 1.05)'
+    type: NUMBER
+  perspective:
+    displayName: 3D Perspective
+    description: 'Perspective value for 3D effect (500-2000, default: 1000)'
+    type: NUMBER
+  speed:
+    displayName: Animation Speed
+    description: 'Speed of enter/exit transitions in ms (100-1000, default: 400)'
+    type: NUMBER
+  gyroscope:
+    displayName: Enable Gyroscope
+    description: 'Use device gyroscope for tilt on mobile (default: enabled)'
+    type: BOOLEAN
+  autoAnimate:
+    displayName: Auto-Animate Cards
+    description: 'Cards continuously tilt/move on their own without hover (default: disabled)'
+    type: BOOLEAN
+  autoAnimateSpeed:
+    displayName: Auto-Animation Speed
+    description: 'Speed of auto-animation in seconds (2-20, default: 8)'
+    type: NUMBER
+  randomizeParameters:
+    displayName: Randomize Animation Parameters
+    description: 'Vary animation values around configured settings (±25%) for more organic look (default: enabled)'
+    type: BOOLEAN
+ui:
+  javascript:
+    - https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js
+    - card-eye-candy.js
+  csp:
+    script-src:
+      - https://cdn.jsdelivr.net
