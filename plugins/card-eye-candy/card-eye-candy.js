@@ -114,31 +114,36 @@
             return;
         }
 
-        // Create container for toggle - using fixed positioning as fallback
+        // Find the navbar - try multiple selectors
+        const navbar = document.querySelector('.navbar-buttons') ||
+                      document.querySelector('.navbar-nav.ms-auto') ||
+                      document.querySelector('.navbar .ms-auto') ||
+                      document.querySelector('.navbar');
+
+        if (!navbar) {
+            console.error('[Card Eye Candy] Could not find navbar');
+            return;
+        }
+
+        // Create container for toggle
         const toggleContainer = document.createElement('div');
         toggleContainer.id = TOGGLE_CONTAINER_ID;
         toggleContainer.style.cssText = `
-            position: fixed;
-            top: 15px;
-            right: 80px;
-            z-index: 9999;
             display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 6px 12px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+            padding: 0 12px;
+            margin-left: 8px;
         `;
 
         // Create label
         const label = document.createElement('span');
         label.textContent = 'Eye Candy';
         label.style.cssText = `
-            color: #fff;
             font-size: 13px;
             user-select: none;
             font-weight: 500;
+            white-space: nowrap;
         `;
 
         // Create toggle switch
@@ -212,10 +217,10 @@
         toggleContainer.appendChild(label);
         toggleContainer.appendChild(toggleButton);
 
-        // Append directly to body for guaranteed visibility
-        document.body.appendChild(toggleContainer);
+        // Append to navbar
+        navbar.appendChild(toggleContainer);
 
-        console.log('[Card Eye Candy] Toggle switch created and attached to body');
+        console.log('[Card Eye Candy] Toggle switch created and attached to navbar');
     }
 
     // Helper function to randomize a value within ±25% range
