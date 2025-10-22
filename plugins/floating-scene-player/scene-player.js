@@ -746,17 +746,22 @@
             const titleElement = thumb.querySelector('.scene-card__title, [class*="title"], h5, .TruncatedText');
             const title = titleElement ? titleElement.textContent.trim() : `Scene ${sceneId}`;
 
-            // Intercept click only when player is visible
+            // Intercept click - use capture phase to catch events early
             const clickHandler = (e) => {
                 if (isPlayerVisible) {
                     e.preventDefault();
                     e.stopPropagation();
+                    e.stopImmediatePropagation();  // Stop all other handlers
                     loadVideoInPlayer(sceneId, title);
                     return false;
                 }
                 // When player is hidden, allow normal link behavior
             };
-            link.addEventListener('click', clickHandler);
+            // Add to both the thumbnail container and the link with capture
+            thumb.addEventListener('click', clickHandler, true);
+            if (link && link !== thumb) {
+                link.addEventListener('click', clickHandler, true);
+            }
 
             // Hover to preview (only if enabled and player is visible)
             if (settings.hoverAutoplay) {
