@@ -16,6 +16,19 @@ A powerful plugin that enhances the Stash scene browsing experience with a float
 - Mobile-friendly with touch support
 - Auto-orientation based on video aspect ratio
 
+### Performer Tag Sync
+Efficiently synchronizes performer tags to images, galleries, and scenes in bulk or on-demand. Much faster than similar plugins due to optimized batch operations.
+
+[View Documentation →](plugins/performer-tag-sync/)
+
+**Key Features:**
+- Bulk sync performer tags to thousands of items in minutes
+- Configurable ADD or SET mode (additive vs destructive)
+- Auto-sync on performer changes via hooks
+- Smart exclusion rules for organized items or specific tags
+- Separate control for images, galleries, and scenes
+- Optimized batching for large libraries
+
 ### Prowlarr Search
 Adds a "Prowl" button to performer pages that searches your Prowlarr indexers for adult content related to that performer.
 

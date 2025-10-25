@@ -1,0 +1,79 @@
+name: Performer Tag Sync
+description: Efficiently syncs performer tags to images, galleries, and scenes in bulk or on-demand
+version: 1.0.0
+exec:
+  - python
+  - "{pluginDir}/performer-tag-sync.py"
+interface: raw
+
+# Hooks temporarily disabled for testing
+# hooks:
+#   - name: Sync tags on image update
+#     description: Auto-apply performer tags when image performers change
+#     triggeredBy:
+#       - Image.Update.Post
+#       - Image.Create.Post
+
+#   - name: Sync tags on gallery update
+#     description: Auto-apply performer tags when gallery performers change
+#     triggeredBy:
+#       - Gallery.Update.Post
+#       - Gallery.Create.Post
+
+#   - name: Sync tags on scene update
+#     description: Auto-apply performer tags when scene performers change
+#     triggeredBy:
+#       - Scene.Update.Post
+#       - Scene.Create.Post
+
+settings:
+  enableImages:
+    displayName: Enable for Images
+    description: Apply performer tags to images
+    type: BOOLEAN
+
+  enableGalleries:
+    displayName: Enable for Galleries
+    description: Apply performer tags to galleries
+    type: BOOLEAN
+
+  enableScenes:
+    displayName: Enable for Scenes
+    description: Apply performer tags to scenes
+    type: BOOLEAN
+
+  tagMode:
+    displayName: Tag Mode
+    description: ADD = append performer tags to existing tags, SET = replace all tags with performer tags
+    type: STRING
+
+  batchSize:
+    displayName: Batch Size
+    description: 'Number of items to process per batch (recommended: 5000-10000 for best performance)'
+    type: NUMBER
+
+  excludeOrganized:
+    displayName: Exclude Organized Items
+    description: Skip items marked as organized
+    type: BOOLEAN
+
+  excludeTag:
+    displayName: Exclude Items With Tag
+    description: Skip items that have this tag (enter tag name)
+    type: STRING
+
+tasks:
+  - name: Sync Tags - All Images
+    description: Bulk sync performer tags to all images with performers
+    defaultArgs:
+      mode: bulkImages
+
+  - name: Sync Tags - All Galleries
+    description: Bulk sync performer tags to all galleries with performers
+    defaultArgs:
+      mode: bulkGalleries
+
+  - name: Sync Tags - All Scenes
+    description: Bulk sync performer tags to all scenes with performers
+    defaultArgs:
+      mode: bulkScenes
