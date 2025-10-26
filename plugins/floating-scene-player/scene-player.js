@@ -429,18 +429,6 @@
             }
         });
 
-        // Error recovery for failed video loads
-        floatingVideo.addEventListener('error', (e) => {
-            console.error('[Floating Scene Player] Video error:', e);
-            const titleText = document.getElementById(TITLE_TEXT_ID);
-            if (titleText && currentSceneTitle) {
-                titleText.textContent = `Error loading: ${currentSceneTitle}`;
-            }
-            // Reset video element to clean state for next attempt
-            floatingVideo.removeAttribute('src');
-            floatingVideo.load();
-        });
-
         // Placeholder text
         const placeholder = document.createElement('div');
         placeholder.id = PLACEHOLDER_ID;
@@ -717,31 +705,17 @@
         }
 
         // Properly cleanup and load new video source
-        // This prevents resource leaks after multiple video loads
-        try {
-            // Pause current video
+        const fullStreamUrl = window.location.origin + streamUrl;
+        if (floatingVideo.src !== fullStreamUrl) {
             floatingVideo.pause();
-
-            // Remove current source to release resources
-            floatingVideo.removeAttribute('src');
-
-            // Reset the media element (releases network connections and buffers)
-            floatingVideo.load();
-
-            // Set new source
             floatingVideo.src = streamUrl;
-
-            // Load the new source
             floatingVideo.load();
-
-            // Attempt to play
-            await floatingVideo.play().catch(() => {
-                // If autoplay fails, try with muted
+            floatingVideo.play().catch(() => {
                 floatingVideo.muted = true;
-                return floatingVideo.play();
+                floatingVideo.play().catch((err) => {
+                    console.error('[Floating Scene Player] Error playing video:', err);
+                });
             });
-        } catch (err) {
-            console.error('[Floating Scene Player] Error loading video:', err);
         }
     }
 
@@ -751,46 +725,47 @@
 
         const { settings } = config;
 
-        // Try broader selectors, but exclude our own nav bar links
-        const thumbnails = document.querySelectorAll('a[href*="/scenes/"], .scene-card, [class*="scene"], [class*="Scene"], .grid-item, .wall-item');
+        // Find all scene links, but attach handlers to their parent containers
+        // This allows preventDefault to work before event reaches the link
+        const links = document.querySelectorAll('a[href*="/scenes/"]');
 
-        thumbnails.forEach(thumb => {
-            // Skip if already enhanced or if it's inside our player nav bar
-            if (thumb.getAttribute(ENHANCED_ATTR) === 'true' || thumb.closest(`#${NAV_BAR_ID}`)) {
+        links.forEach(link => {
+            // Skip if inside our player nav bar
+            if (link.closest(`#${NAV_BAR_ID}`)) {
                 return;
             }
-            thumb.setAttribute(ENHANCED_ATTR, 'true');
-
-            // Handle both the link itself and elements containing links
-            let link = thumb;
-            if (thumb.tagName !== 'A') {
-                link = thumb.querySelector('a[href*="/scenes/"]') || thumb.closest('a[href*="/scenes/"]');
-            }
-            if (!link) return;
 
             const sceneId = getSceneId(link);
             if (!sceneId) return;
 
-            // Get title from thumbnail
-            const titleElement = thumb.querySelector('.scene-card__title, [class*="title"], h5, .TruncatedText');
+            // Find the parent container (card) to attach handler to
+            // Look for common card container classes
+            const parentCard = link.closest('.scene-card, .grid-item, .card, .wall-item, [class*="Card"]') || link.parentElement;
+
+            // Skip if we already enhanced this parent container
+            if (!parentCard || parentCard.getAttribute(ENHANCED_ATTR) === 'true') {
+                return;
+            }
+            parentCard.setAttribute(ENHANCED_ATTR, 'true');
+
+            // Get title from the card
+            const titleElement = parentCard.querySelector('.scene-card__title, [class*="title"], h5, .TruncatedText');
             const title = titleElement ? titleElement.textContent.trim() : `Scene ${sceneId}`;
 
-            // Intercept click - use capture phase to catch events early
+            // Intercept click on parent container - use capture phase to catch before link
             const clickHandler = (e) => {
                 if (isPlayerVisible) {
                     e.preventDefault();
                     e.stopPropagation();
-                    e.stopImmediatePropagation();  // Stop all other handlers
+                    e.stopImmediatePropagation();
                     loadVideoInPlayer(sceneId, title);
                     return false;
                 }
                 // When player is hidden, allow normal link behavior
             };
-            // Add to both the thumbnail container and the link with capture
-            thumb.addEventListener('click', clickHandler, true);
-            if (link && link !== thumb) {
-                link.addEventListener('click', clickHandler, true);
-            }
+
+            // Attach to parent container in capture phase
+            parentCard.addEventListener('click', clickHandler, true);
 
             // Hover to preview (only if enabled and player is visible)
             if (settings.hoverAutoplay) {
@@ -798,9 +773,9 @@
                     if (!isPlayerVisible) return; // Don't preview if player is hidden
 
                     clearTimeout(hoverTimeout);
-                    thumb.style.transform = 'scale(1.02)';
-                    thumb.style.transition = 'transform 0.2s ease';
-                    thumb.style.zIndex = '1000';
+                    parentCard.style.transform = 'scale(1.02)';
+                    parentCard.style.transition = 'transform 0.2s ease';
+                    parentCard.style.zIndex = '1000';
 
                     // Load video on hover after a short delay
                     hoverTimeout = setTimeout(() => {
@@ -810,16 +785,16 @@
 
                 const mouseLeaveHandler = () => {
                     clearTimeout(hoverTimeout);
-                    thumb.style.transform = 'scale(1)';
-                    thumb.style.zIndex = '';
+                    parentCard.style.transform = 'scale(1)';
+                    parentCard.style.zIndex = '';
                 };
 
-                thumb.addEventListener('mouseenter', mouseEnterHandler);
-                thumb.addEventListener('mouseleave', mouseLeaveHandler);
+                parentCard.addEventListener('mouseenter', mouseEnterHandler);
+                parentCard.addEventListener('mouseleave', mouseLeaveHandler);
             }
 
             // Visual indicator that it's clickable
-            thumb.style.cursor = 'pointer';
+            parentCard.style.cursor = 'pointer';
         });
     }
 
@@ -851,7 +826,6 @@
             // Monitor for new thumbnails (only once)
             if (!thumbnailObserver) {
                 thumbnailObserver = new MutationObserver(() => {
-                    // Debounce to avoid excessive calls on rapid DOM changes
                     clearTimeout(thumbnailDebounceTimeout);
                     thumbnailDebounceTimeout = setTimeout(() => {
                         setupThumbnailInteractions(pluginConfig);
@@ -881,7 +855,6 @@
             // Monitor for new thumbnails
             if (!thumbnailObserver) {
                 thumbnailObserver = new MutationObserver(() => {
-                    // Debounce to avoid excessive calls on rapid DOM changes
                     clearTimeout(thumbnailDebounceTimeout);
                     thumbnailDebounceTimeout = setTimeout(() => {
                         setupThumbnailInteractions(pluginConfig);
@@ -924,7 +897,6 @@
             thumbnailObserver = null;
         }
 
-        // Clear any pending debounce timeouts
         clearTimeout(thumbnailDebounceTimeout);
         clearTimeout(hoverTimeout);
 
