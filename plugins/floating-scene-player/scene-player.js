@@ -24,6 +24,7 @@
     let isPlayerVisible = false;
     let pluginConfig = null;
     let thumbnailObserver = null;
+    let thumbnailDebounceTimeout = null;
 
     // Helper to get position from mouse or touch event
     const getEventPosition = (e) => {
@@ -428,6 +429,18 @@
             }
         });
 
+        // Error recovery for failed video loads
+        floatingVideo.addEventListener('error', (e) => {
+            console.error('[Floating Scene Player] Video error:', e);
+            const titleText = document.getElementById(TITLE_TEXT_ID);
+            if (titleText && currentSceneTitle) {
+                titleText.textContent = `Error loading: ${currentSceneTitle}`;
+            }
+            // Reset video element to clean state for next attempt
+            floatingVideo.removeAttribute('src');
+            floatingVideo.load();
+        });
+
         // Placeholder text
         const placeholder = document.createElement('div');
         placeholder.id = PLACEHOLDER_ID;
@@ -703,16 +716,32 @@
             }
         }
 
-        // Update video source
-        const fullStreamUrl = window.location.origin + streamUrl;
-        if (floatingVideo.src !== fullStreamUrl) {
+        // Properly cleanup and load new video source
+        // This prevents resource leaks after multiple video loads
+        try {
+            // Pause current video
+            floatingVideo.pause();
+
+            // Remove current source to release resources
+            floatingVideo.removeAttribute('src');
+
+            // Reset the media element (releases network connections and buffers)
+            floatingVideo.load();
+
+            // Set new source
             floatingVideo.src = streamUrl;
-            floatingVideo.play().catch(() => {
+
+            // Load the new source
+            floatingVideo.load();
+
+            // Attempt to play
+            await floatingVideo.play().catch(() => {
+                // If autoplay fails, try with muted
                 floatingVideo.muted = true;
-                floatingVideo.play().catch((err) => {
-                    console.error('[Floating Scene Player] Error playing video:', err);
-                });
+                return floatingVideo.play();
             });
+        } catch (err) {
+            console.error('[Floating Scene Player] Error loading video:', err);
         }
     }
 
@@ -822,7 +851,11 @@
             // Monitor for new thumbnails (only once)
             if (!thumbnailObserver) {
                 thumbnailObserver = new MutationObserver(() => {
-                    setupThumbnailInteractions(pluginConfig);
+                    // Debounce to avoid excessive calls on rapid DOM changes
+                    clearTimeout(thumbnailDebounceTimeout);
+                    thumbnailDebounceTimeout = setTimeout(() => {
+                        setupThumbnailInteractions(pluginConfig);
+                    }, 200);
                 });
 
                 thumbnailObserver.observe(document.body, {
@@ -848,7 +881,11 @@
             // Monitor for new thumbnails
             if (!thumbnailObserver) {
                 thumbnailObserver = new MutationObserver(() => {
-                    setupThumbnailInteractions(pluginConfig);
+                    // Debounce to avoid excessive calls on rapid DOM changes
+                    clearTimeout(thumbnailDebounceTimeout);
+                    thumbnailDebounceTimeout = setTimeout(() => {
+                        setupThumbnailInteractions(pluginConfig);
+                    }, 200);
                 });
 
                 thumbnailObserver.observe(document.body, {
@@ -886,6 +923,10 @@
             thumbnailObserver.disconnect();
             thumbnailObserver = null;
         }
+
+        // Clear any pending debounce timeouts
+        clearTimeout(thumbnailDebounceTimeout);
+        clearTimeout(hoverTimeout);
 
         currentSceneId = null;
         currentSceneTitle = null;
