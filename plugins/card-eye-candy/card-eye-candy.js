@@ -39,9 +39,9 @@
             if (settings.enabledByDefault === undefined) settings.enabledByDefault = false;
             if (settings.effectIntensity === undefined) settings.effectIntensity = 15;
             if (settings.glareEffect === undefined) settings.glareEffect = true;
-            if (settings.maxGlare === undefined) settings.maxGlare = 0.3;
+            if (settings.maxGlare === undefined) settings.maxGlare = 30;
             if (settings.scaleOnHover === undefined) settings.scaleOnHover = true;
-            if (settings.scaleAmount === undefined) settings.scaleAmount = 1.05;
+            if (settings.scaleAmount === undefined) settings.scaleAmount = 105;
             if (settings.perspective === undefined) settings.perspective = 1000;
             if (settings.speed === undefined) settings.speed = 400;
             if (settings.gyroscope === undefined) settings.gyroscope = true;
@@ -57,9 +57,9 @@
                 enabledByDefault: false,
                 effectIntensity: 15,
                 glareEffect: true,
-                maxGlare: 0.3,
+                maxGlare: 30,
                 scaleOnHover: true,
-                scaleAmount: 1.05,
+                scaleAmount: 105,
                 perspective: 1000,
                 speed: 400,
                 gyroscope: true,
@@ -293,8 +293,8 @@
                     max: randomizeValue(pluginConfig.effectIntensity, pluginConfig.randomizeParameters),
                     speed: randomizeValue(pluginConfig.speed, pluginConfig.randomizeParameters),
                     glare: pluginConfig.glareEffect,
-                    'max-glare': randomizeValue(pluginConfig.maxGlare, pluginConfig.randomizeParameters),
-                    scale: pluginConfig.scaleOnHover ? randomizeValue(pluginConfig.scaleAmount, pluginConfig.randomizeParameters) : 1,
+                    'max-glare': randomizeValue(pluginConfig.maxGlare / 100, pluginConfig.randomizeParameters),
+                    scale: pluginConfig.scaleOnHover ? randomizeValue(pluginConfig.scaleAmount / 100, pluginConfig.randomizeParameters) : 1,
                     perspective: randomizeValue(pluginConfig.perspective, pluginConfig.randomizeParameters),
                     gyroscope: pluginConfig.gyroscope,
                     reset: true,

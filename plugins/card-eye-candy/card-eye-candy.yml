@@ -1,6 +1,6 @@
 name: Card Eye Candy
 description: Adds stunning visual effects to card containers (performers, scenes, galleries, tags) with customizable parallax and 3D tilt animations
-version: 1.0.1
+version: 1.0.2
 settings:
   enabledByDefault:
     displayName: Enabled by Default
@@ -16,7 +16,7 @@ settings:
     type: BOOLEAN
   maxGlare:
     displayName: Glare Intensity
-    description: 'Maximum glare opacity (0.0-1.0, default: 0.3)'
+    description: 'Maximum glare opacity (0-100, default: 30)'
     type: NUMBER
   scaleOnHover:
     displayName: Scale on Hover
@@ -24,7 +24,7 @@ settings:
     type: BOOLEAN
   scaleAmount:
     displayName: Scale Amount
-    description: 'How much to scale on hover (1.0-1.2, default: 1.05)'
+    description: 'How much to scale on hover (100-120, default: 105)'
     type: NUMBER
   perspective:
     displayName: 3D Perspective
