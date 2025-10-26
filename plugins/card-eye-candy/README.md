@@ -41,6 +41,11 @@ The plugin automatically applies effects to:
 
 ## Settings
 
+### Enabled by Default
+- **Type**: Boolean (on/off)
+- **Default**: Disabled
+- **Description**: Start with effects enabled automatically when you open or refresh Stash. When disabled, you'll need to manually toggle the effects on each session.
+
 ### Effect Intensity
 - **Range**: 0-50
 - **Default**: 15
@@ -152,6 +157,10 @@ This plugin uses [Vanilla Tilt.js](https://github.com/micku7zu/vanilla-tilt.js),
 - Increase Animation Speed (lower number = faster but more CPU usage)
 
 ## Version History
+
+### 1.0.1 (2025-10-25)
+- Added "Enabled by Default" setting - effects can now start enabled automatically on launch/refresh
+- Fixed: Toggle state now persists based on user configuration
 
 ### 1.0.0 (2025-10-20)
 - Initial release

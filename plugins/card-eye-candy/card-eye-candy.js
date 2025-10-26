@@ -36,6 +36,7 @@
             const settings = data?.data?.configuration?.plugins?.['card-eye-candy'] || {};
 
             // Set defaults
+            if (settings.enabledByDefault === undefined) settings.enabledByDefault = false;
             if (settings.effectIntensity === undefined) settings.effectIntensity = 15;
             if (settings.glareEffect === undefined) settings.glareEffect = true;
             if (settings.maxGlare === undefined) settings.maxGlare = 0.3;
@@ -53,6 +54,7 @@
         } catch (error) {
             console.error('[Card Eye Candy] Error loading settings:', error);
             return {
+                enabledByDefault: false,
                 effectIntensity: 15,
                 glareEffect: true,
                 maxGlare: 0.3,
@@ -60,7 +62,10 @@
                 scaleAmount: 1.05,
                 perspective: 1000,
                 speed: 400,
-                gyroscope: true
+                gyroscope: true,
+                autoAnimate: false,
+                autoAnimateSpeed: 8,
+                randomizeParameters: true
             };
         }
     }
@@ -395,7 +400,25 @@
 
             tryCreateToggle();
 
-            console.log('[Card Eye Candy] Plugin initialized (effects disabled by default)');
+            // Enable effects automatically if configured
+            if (pluginConfig.enabledByDefault) {
+                console.log('[Card Eye Candy] Auto-enabling effects (enabledByDefault is true)');
+                isEnabled = true;
+                // Update toggle UI after it's created
+                setTimeout(() => {
+                    const checkbox = toggleButton?.querySelector('input[type="checkbox"]');
+                    const slider = toggleButton?.querySelector('span');
+                    const sliderButton = slider?.querySelector('span');
+                    if (checkbox && slider && sliderButton) {
+                        checkbox.checked = true;
+                        slider.style.backgroundColor = '#28a745';
+                        sliderButton.style.transform = 'translateX(24px)';
+                    }
+                    enableEffects();
+                }, 1000);
+            } else {
+                console.log('[Card Eye Candy] Plugin initialized (effects disabled by default)');
+            }
         } catch (error) {
             console.error('[Card Eye Candy] Error during initialization:', error);
         }

@@ -1,7 +1,11 @@
 name: Card Eye Candy
 description: Adds stunning visual effects to card containers (performers, scenes, galleries, tags) with customizable parallax and 3D tilt animations
-version: 1.0.0
+version: 1.0.1
 settings:
+  enabledByDefault:
+    displayName: Enabled by Default
+    description: 'Start with effects enabled on launch/refresh (default: disabled)'
+    type: BOOLEAN
   effectIntensity:
     displayName: Effect Intensity
     description: 'Control the intensity of the tilt effect (0-50, default: 15)'
