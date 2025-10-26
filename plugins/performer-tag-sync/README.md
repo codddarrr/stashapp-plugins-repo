@@ -215,10 +215,37 @@ The plugin will refuse to run on unsupported schemas if strict mode is enabled, 
 
 ### Architecture
 - **Direct SQLite access** for maximum performance
+- **WAL mode enabled** for better concurrent access
+- **Separated read/write connections** following [Stash PR #5274](https://github.com/stashapp/stash/pull/5274) guidelines
 - **Batch processing** with configurable batch sizes (5k-10k items)
 - **Automatic indexing** creates optimal database indexes on first run
 - **Schema validation** ensures database compatibility
 - **Transaction-based updates** for data integrity
+
+### Database Connection Handling
+The plugin implements professional SQLite best practices for concurrent database access:
+
+**Connection Separation:**
+- **Read connections** use `mode=ro` (read-only) - safe, cannot accidentally write
+- **Write connections** use `_txlock=immediate` - acquire lock immediately, prevent deadlocks
+- Each function creates its own connections for proper lifecycle management
+
+**WAL Mode:**
+- Automatically enables Write-Ahead Logging (WAL) if not already enabled
+- Allows concurrent reads while writes are in progress
+- Safe to run while Stash is running (though stopping Stash is still recommended for first use)
+- Matches Stash's own database configuration
+
+**Cache Configuration:**
+- All connections use 2MB cache size (`PRAGMA cache_size=-2000`)
+- Matches Stash's internal database settings
+- Optimized for performance on large databases
+
+**Why This Matters:**
+- Prevents write locks that could block Stash or other processes
+- Safer concurrent access - read operations don't interfere with writes
+- Follows the same patterns Stash itself uses for database access
+- Reduces risk of "database is locked" errors
 
 ### Database Tables Modified
 - `images_tags` - Image to tag associations
@@ -226,18 +253,23 @@ The plugin will refuse to run on unsupported schemas if strict mode is enabled, 
 - `scenes_tags` - Scene to tag associations
 
 ### Performance Optimization
-1. Creates indexes on first run for fast queries
-2. Fetches all performer-tag mappings once (cached in memory)
-3. Processes items in large batches (5000+ at a time)
-4. Uses SQL transactions for atomic updates
-5. Minimizes database round-trips
+1. Enables WAL mode for better concurrent access
+2. Creates indexes on first run for fast queries
+3. Fetches all performer-tag mappings once (cached in memory)
+4. Processes items in large batches (5000+ at a time)
+5. Uses SQL transactions for atomic updates
+6. Separates read and write operations for efficiency
+7. Minimizes database round-trips
 
 ### Safety Features
 - Schema version checking before execution
 - Database integrity validation
-- Read-only mode available (set `SCHEMA_WARNING_ONLY = False`)
+- Read-only connections prevent accidental writes during data fetching
+- Write connections use immediate transaction locks (prevent deadlocks)
 - Automatic index creation (non-destructive)
 - Transactional updates (atomic operations)
+- Proper connection lifecycle management (no leaks)
+- WAL mode for safer concurrent access
 
 ## License
 
