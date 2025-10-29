@@ -1,0 +1,47 @@
+name: Living Cards
+description: Animated card images that smoothly transition between random images from tags, performers, and galleries with eye-catching GSAP effects
+version: 1.0.0
+settings:
+  enableTags:
+    displayName: Enable for Tags
+    description: 'Animate card images on the tags page (default: enabled)'
+    type: BOOLEAN
+  enablePerformers:
+    displayName: Enable for Performers
+    description: 'Animate card images on the performers page (default: enabled)'
+    type: BOOLEAN
+  enableGalleries:
+    displayName: Enable for Galleries
+    description: 'Animate card images on the galleries page (default: enabled)'
+    type: BOOLEAN
+  useScenes:
+    displayName: Source from Scenes
+    description: 'Fetch images from scene screenshots (default: enabled)'
+    type: BOOLEAN
+  useImages:
+    displayName: Source from Images
+    description: 'Fetch images from performer/tag images (default: enabled)'
+    type: BOOLEAN
+  baseInterval:
+    displayName: Base Interval (seconds)
+    description: 'Base time in seconds before transitioning to next image (1-60, default: 5)'
+    type: NUMBER
+  randomnessFactor:
+    displayName: Randomness Factor
+    description: 'Variability in timing - higher values create more random intervals (0-100, default: 75)'
+    type: NUMBER
+  transitionStyle:
+    displayName: Transition Style
+    description: 'Animation effect: fade, slide, flip, zoom, rotate, random (default: random)'
+    type: STRING
+  transitionDuration:
+    displayName: Transition Duration (ms)
+    description: 'Duration of transition animation in milliseconds (100-3000, default: 800)'
+    type: NUMBER
+ui:
+  javascript:
+    - https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js
+    - living-cards.js
+  csp:
+    script-src:
+      - https://cdn.jsdelivr.net
