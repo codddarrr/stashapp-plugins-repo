@@ -1388,6 +1388,25 @@
         document.body.appendChild(button);
     }
 
+    // Retry creating launch button with exponential backoff
+    function retryCreateButton(attempts = 0, maxAttempts = 5) {
+        const delays = [100, 300, 500, 1000, 2000];
+
+        if (attempts >= maxAttempts) {
+            console.log('[Image Deck] Max retry attempts reached');
+            return;
+        }
+
+        const hasContext = detectContext();
+        const hasImages = document.querySelectorAll('img[src*="/image/"]').length > 0;
+
+        if (hasContext || hasImages) {
+            createLaunchButton();
+        } else if (attempts < maxAttempts - 1) {
+            setTimeout(() => retryCreateButton(attempts + 1, maxAttempts), delays[attempts]);
+        }
+    }
+
     // Initialize plugin
     function initialize() {
         console.log('[Image Deck] Initializing...');
@@ -1399,27 +1418,31 @@
         }
 
         // Create launch button on relevant pages
-        createLaunchButton();
+        retryCreateButton();
 
-        // Use less aggressive observation
+        // Watch for DOM changes to detect when React renders new content
         let debounceTimer;
-        const observer = new MutationObserver(() => {
+        const observer = new MutationObserver((mutations) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                if (!document.querySelector('.image-deck-launch-btn')) {
+                // Check if button exists and we're still on a valid page
+                const hasButton = document.querySelector('.image-deck-launch-btn');
+                const shouldHaveButton = detectContext() || document.querySelectorAll('img[src*="/image/"]').length > 0;
+
+                if (!hasButton && shouldHaveButton) {
                     createLaunchButton();
                 }
-            }, 500);
+            }, 300);
         });
 
-        // Only observe specific containers, not entire body
+        // Observe the main content area for changes
         const mainContent = document.querySelector('.main-content') ||
                           document.querySelector('[role="main"]') ||
                           document.body;
 
         observer.observe(mainContent, {
             childList: true,
-            subtree: false // Don't watch entire subtree for performance
+            subtree: true // Watch subtree to catch React updates
         });
 
         console.log('[Image Deck] Initialized');
@@ -1432,21 +1455,38 @@
         setTimeout(initialize, 500);
     }
 
-    // Handle SPA navigation
+    // Track last URL to detect changes
+    let lastUrl = location.href;
+
+    // Handle SPA navigation - intercept both pushState and replaceState
     const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
     history.pushState = function() {
         originalPushState.apply(history, arguments);
-        setTimeout(() => {
-            closeDeck();
-            createLaunchButton();
-        }, 500);
+        handleNavigation();
     };
 
-    window.addEventListener('popstate', () => {
-        setTimeout(() => {
-            closeDeck();
-            createLaunchButton();
-        }, 500);
-    });
+    history.replaceState = function() {
+        originalReplaceState.apply(history, arguments);
+        handleNavigation();
+    };
+
+    // Handle back/forward navigation
+    window.addEventListener('popstate', handleNavigation);
+
+    // Poll for URL changes as fallback (React Router sometimes doesn't trigger history events)
+    setInterval(() => {
+        if (location.href !== lastUrl) {
+            lastUrl = location.href;
+            handleNavigation();
+        }
+    }, 500);
+
+    function handleNavigation() {
+        lastUrl = location.href;
+        closeDeck();
+        retryCreateButton();
+    }
 
 })();
