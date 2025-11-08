@@ -1,0 +1,785 @@
+/* Image Deck Plugin Styles - Performance Optimized */
+
+.image-deck-launch-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-size: 24px;
+    /* GPU acceleration */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.image-deck-launch-btn:hover {
+    transform: scale(1.1) translateZ(0);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.image-deck-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    /* GPU acceleration */
+    will-change: opacity, transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+.image-deck-container.active {
+    opacity: 1;
+}
+
+/* Swiper container */
+.image-deck-swiper {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    /* GPU acceleration for swiper */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.swiper-wrapper {
+    /* GPU acceleration */
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.swiper-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+}
+
+.swiper-slide img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    /* Performance optimizations */
+    image-rendering: -webkit-optimize-contrast;
+    contain: layout style paint;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    /* Subtle glow effect */
+    filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.3));
+}
+
+/* Lazy loading states */
+.swiper-lazy-preloader {
+    width: 42px;
+    height: 42px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -21px;
+    margin-top: -21px;
+    z-index: 10;
+    transform-origin: 50%;
+    animation: swiper-preloader-spin 1s infinite linear;
+    box-sizing: border-box;
+    border: 4px solid rgba(102, 126, 234, 0.2);
+    border-radius: 50%;
+    border-top-color: #667eea;
+}
+
+@keyframes swiper-preloader-spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Top bar with progress and controls */
+.image-deck-topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+}
+
+.image-deck-topbar > * {
+    pointer-events: auto;
+}
+
+.image-deck-topbar-btns {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Progress bar - optimized */
+.image-deck-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform-origin: left;
+    transform: scaleX(0);
+    z-index: 11;
+    /* GPU acceleration */
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Counter */
+.image-deck-counter {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin-left: 10px;
+    /* Prevent layout shift */
+    min-width: 80px;
+}
+
+/* Topbar buttons - shared styles */
+.image-deck-close,
+.image-deck-fullscreen,
+.image-deck-strobe-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+    font-size: 20px;
+    backdrop-filter: blur(10px);
+    /* GPU acceleration */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.image-deck-close:hover,
+.image-deck-fullscreen:hover,
+.image-deck-strobe-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1) translateZ(0);
+}
+
+.image-deck-strobe-btn.active {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-color: transparent;
+    animation: strobeBtnPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes strobeBtnPulse {
+    0%, 100% { transform: scale(1) translateZ(0); }
+    50% { transform: scale(1.15) translateZ(0); }
+}
+
+/* Control buttons */
+.image-deck-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(0);
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+    background: rgba(0,0,0,0.5);
+    padding: 10px 20px;
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    /* GPU acceleration */
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.image-deck-info-btn,
+.image-deck-control-btn[data-action="play"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-color: transparent !important;
+}
+
+.image-deck-control-btn[data-action="play"]:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #654198 100%) !important;
+}
+
+.image-deck-control-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+    font-size: 18px;
+    /* GPU acceleration */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.image-deck-control-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1) translateZ(0);
+}
+
+.image-deck-control-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+}
+
+/* Speed indicator */
+.image-deck-speed {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(0);
+    color: white;
+    font-size: 12px;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 15px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    /* GPU acceleration */
+    will-change: opacity;
+    backface-visibility: hidden;
+}
+
+.image-deck-speed.visible {
+    opacity: 1;
+}
+
+/* Disable shadows for performance */
+.swiper-3d .swiper-slide-shadow,
+.swiper-3d .swiper-slide-shadow-left,
+.swiper-3d .swiper-slide-shadow-right,
+.swiper-3d .swiper-slide-shadow-top,
+.swiper-3d .swiper-slide-shadow-bottom {
+    display: none !important;
+}
+
+/* Cards effect - optimized */
+.swiper-cards {
+    overflow: visible !important;
+}
+
+.swiper-cards .swiper-slide {
+    border-radius: 12px;
+    overflow: hidden;
+    /* Lighter shadow for performance */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+/* Coverflow effect - optimized */
+.swiper-coverflow .swiper-slide {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Virtual slides optimization */
+.swiper-virtual .swiper-slide {
+    /* Prevent unnecessary reflows */
+    contain: layout style paint;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .image-deck-controls {
+        bottom: 20px;
+        padding: 8px 15px;
+    }
+
+    .image-deck-control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .image-deck-launch-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        bottom: 70px;
+    }
+
+    /* Reduce effects on mobile for better performance */
+    .swiper-3d .swiper-slide {
+        transform-style: flat !important;
+    }
+
+    /* Use simpler transitions on mobile */
+    * {
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* Loading spinner */
+.image-deck-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    will-change: transform;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Particle canvas for eye candy */
+.image-deck-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+}
+
+/* Strobe overlay */
+.image-deck-strobe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.05s ease-out;
+}
+
+/* Ambient gradient overlay */
+.image-deck-ambient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(102, 126, 234, 0.15) 0%,
+        rgba(118, 75, 162, 0.1) 50%,
+        transparent 100%
+    );
+    mix-blend-mode: screen;
+    animation: ambientPulse 8s ease-in-out infinite;
+}
+
+@keyframes ambientPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Edge glow effect */
+.image-deck-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: inset 0 0 100px rgba(102, 126, 234, 0.2);
+    animation: edgeGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes edgeGlow {
+    0% { box-shadow: inset 0 0 100px rgba(102, 126, 234, 0.2); }
+    100% { box-shadow: inset 0 0 150px rgba(118, 75, 162, 0.3); }
+}
+
+/* Metadata modal */
+.image-deck-metadata-modal {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+}
+
+.image-deck-metadata-modal.active {
+    transform: translateY(0);
+}
+
+.image-deck-metadata-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.image-deck-metadata-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
+}
+
+.image-deck-metadata-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.image-deck-metadata-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.image-deck-metadata-close:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1);
+}
+
+.image-deck-metadata-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.metadata-loading,
+.metadata-error {
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+}
+
+.metadata-error {
+    color: #ff6b6b;
+}
+
+.metadata-section {
+    margin-bottom: 24px;
+}
+
+.metadata-section label {
+    display: block;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.metadata-file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.metadata-filename {
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+    font-family: monospace;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.metadata-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.metadata-link:hover {
+    color: #764ba2;
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateX(3px);
+}
+
+.metadata-rating {
+    display: flex;
+    gap: 8px;
+}
+
+.metadata-star {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.metadata-star.active {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+
+.metadata-star:hover {
+    transform: scale(1.2);
+}
+
+.metadata-title,
+.metadata-details,
+.metadata-tag-search {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.metadata-title:focus,
+.metadata-details:focus,
+.metadata-tag-search:focus {
+    outline: none;
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.metadata-details {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.metadata-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.metadata-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.metadata-tag-remove {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.metadata-tag-remove:hover {
+    background: rgba(255,255,255,0.4);
+    transform: scale(1.1);
+}
+
+.metadata-tag-results {
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.metadata-tag-result {
+    padding: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.metadata-tag-result:last-child {
+    border-bottom: none;
+}
+
+.metadata-tag-result:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.metadata-info {
+    color: rgba(255,255,255,0.8);
+    line-height: 1.8;
+}
+
+.metadata-info div {
+    margin-bottom: 8px;
+}
+
+.metadata-info strong {
+    color: rgba(255,255,255,0.6);
+    margin-right: 8px;
+}
+
+.metadata-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.metadata-save-btn,
+.metadata-organized-btn {
+    flex: 1;
+    padding: 14px 24px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.metadata-save-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.metadata-save-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.metadata-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.metadata-organized-btn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.metadata-organized-btn.active {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border-color: transparent;
+}
+
+.metadata-organized-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.metadata-organized-btn.active:hover {
+    background: linear-gradient(135deg, #0d7a6f 0%, #2dd164 100%);
+}
+
+/* Disable body scroll when deck is open */
+body.image-deck-open {
+    overflow: hidden;
+    /* Prevent iOS bounce */
+    position: fixed;
+    width: 100%;
+}
+
+/* Performance hints for browsers */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .image-deck-ambient,
+    .image-deck-particles,
+    .image-deck-container::before {
+        display: none !important;
+    }
+}
