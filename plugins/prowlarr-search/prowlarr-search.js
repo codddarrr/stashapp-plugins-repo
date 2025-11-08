@@ -99,7 +99,7 @@
 
         // Add XXX category filter (category 6000 for Adult content)
         if (xxxOnly) {
-            url += '&category=6000';
+            url += '&categories=6000';
         }
 
         return url;
