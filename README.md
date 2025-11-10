@@ -4,6 +4,45 @@ A collection of plugins for [Stash](https://stashapp.cc), the self-hosted adult 
 
 ## Available Plugins
 
+### 🎴 Image Deck
+A fullscreen image viewer with swipeable navigation, one-handed controls, and stunning visual effects. Perfect for browsing through performer images, galleries, or tag collections.
+
+[View Documentation →](plugins/image-deck/)
+
+**Key Features:**
+- **Fullscreen Swipeable Navigation** - One-handed mobile controls with gesture support
+- **Metadata Editing** - Rate, tag, and edit images without leaving the viewer
+- **6 Transition Effects** - Cards, coverflow, flip, cube, fade, slide
+- **Visual Effects** - Customizable particles, ambient glows, strobe mode
+- **Auto-Play Mode** - Hands-free viewing with configurable speed
+- **Resume Position** - Remembers where you left off (session-based)
+- **GPU Accelerated** - Optimized for modern devices with 60fps performance
+
+### 📺 Stream Queue
+Create multiple playlist queues for external media players like VLC. Click numbered buttons on scene cards to add videos to different streams, then export as M3U8 playlists.
+
+[View Documentation →](plugins/stream-queue/)
+
+**Key Features:**
+- **Multiple Independent Streams** - Configure 1-10 separate playlist queues
+- **One-Click Queueing** - Numbered buttons on every scene thumbnail
+- **M3U8 Export** - Download industry-standard playlists for VLC
+- **Persistent Storage** - Queues survive page reloads
+- **Floating Management Panel** - Real-time view of all your queues
+- **VLC Compatible** - Works with VLC and any M3U8-compatible player
+
+### 🃏 Living Cards
+Automatically fetch and display IAFD (Internet Adult Film Database) profile cards for performers. Shows age, career span, and direct links to full profiles.
+
+[View Documentation →](plugins/living-cards/)
+
+**Key Features:**
+- **Automatic IAFD Integration** - Fetches performer data from IAFD
+- **Career Timeline** - Shows career start/end years and current age
+- **Visual Profile Cards** - Clean, modern card design with performer photos
+- **Smart Caching** - Reduces API calls with intelligent caching
+- **Direct IAFD Links** - One-click access to full performer profiles
+
 ### Floating Scene Player
 A powerful plugin that enhances the Stash scene browsing experience with a floating video player, seamless navigation, and smart thumbnail interactions.
 

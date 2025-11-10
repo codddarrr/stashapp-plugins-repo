@@ -1,0 +1,46 @@
+name: Stream Queue
+description: Create multiple playlist queues for external media players like VLC. Right-click on scenes to add them to numbered streams, then export as M3U8 playlists.
+version: 1.0.0
+settings:
+  streamCount:
+    displayName: Number of Streams
+    type: NUMBER
+    description: 'How many separate playlist streams to create (1-10, default: 3). Each stream gets its own numbered button on scene cards.'
+  buttonSize:
+    displayName: Button Size
+    type: NUMBER
+    description: 'Size of the stream queue buttons in pixels (default: 32)'
+  showQueuePanel:
+    displayName: Show Queue Panel
+    type: BOOLEAN
+    description: 'Show floating panel with current queue status (default: enabled)'
+  autoDownload:
+    displayName: Auto-download Playlist
+    type: BOOLEAN
+    description: 'Automatically download M3U8 file when adding scenes for quick VLC opening (default: disabled)'
+  buttonColor:
+    displayName: Button Color (Hue)
+    type: NUMBER
+    description: 'Base color hue for stream buttons (0-360, default: 260 = purple)'
+  maxQueueSize:
+    displayName: Max Queue Size
+    type: NUMBER
+    description: 'Maximum number of scenes per queue (0 = unlimited, default: 0)'
+  streamingPath:
+    displayName: Streaming Path Pattern
+    type: STRING
+    description: 'URL pattern for streaming, use {id} as placeholder (default: /scene/{id}/stream)'
+  apiKey:
+    displayName: Stash API Key
+    type: STRING
+    description: 'Your Stash API key for authentication (Settings → Security → API Key). Only works if Stash has auth enabled. For Authelia/proxy auth, see Stream Base URL below or configure Authelia bypass rules.'
+  streamBaseUrl:
+    displayName: Stream Base URL
+    type: STRING
+    description: 'Override base URL for streams (e.g., http://192.168.1.100:9999 for local network, or http://localhost:9999). Leave empty to use current page URL. Useful for bypassing Authelia when VLC is on same network.'
+
+ui:
+  javascript:
+    - stream-queue.js
+  css:
+    - stream-queue.css
