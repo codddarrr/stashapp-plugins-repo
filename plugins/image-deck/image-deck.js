@@ -11,6 +11,11 @@
     let imageCache = new Map();
     let loadingQueue = [];
 
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     window.innerWidth < 768 ||
+                     ('ontouchstart' in window);
+
     // Fetch plugin configuration
     async function getPluginConfig() {
         try {
@@ -33,7 +38,7 @@
             if (!settings.transitionEffect || settings.transitionEffect === '') settings.transitionEffect = 'cards';
             if (settings.showProgressBar === undefined) settings.showProgressBar = true;
             if (settings.showCounter === undefined) settings.showCounter = true;
-            if (!settings.preloadImages || settings.preloadImages === 0) settings.preloadImages = 2;
+            if (!settings.preloadImages || settings.preloadImages === 0) settings.preloadImages = isMobile ? 1 : 2;
             if (!settings.swipeResistance || settings.swipeResistance === 0) settings.swipeResistance = 50;
             if (!settings.effectDepth || settings.effectDepth === 0) settings.effectDepth = 150;
 
@@ -412,7 +417,7 @@
         if (existing) existing.remove();
 
         const container = document.createElement('div');
-        container.className = 'image-deck-container';
+        container.className = `image-deck-container${isMobile ? ' mobile-optimized' : ''}`;
         container.innerHTML = `
             <canvas class="image-deck-particles"></canvas>
             <div class="image-deck-ambient"></div>
@@ -463,7 +468,11 @@
         if (!canvas) return;
         if (pluginConfig.particleCount === 0) return; // Disabled
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', {
+            alpha: true,
+            desynchronized: true, // Hint for better performance on modern browsers
+            willReadFrequently: false
+        });
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
@@ -503,14 +512,14 @@
             }
 
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${this.hue}, 70%, 65%, ${this.opacity})`;
-                ctx.fill();
-
-                // Add glow
+                // Set shadow properties per particle (batched in render loop)
                 ctx.shadowBlur = 20;
                 ctx.shadowColor = `hsla(${this.hue}, 70%, 65%, ${this.opacity})`;
+
+                ctx.fillStyle = `hsla(${this.hue}, 70%, 65%, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
@@ -519,16 +528,19 @@
             particles.push(new Particle());
         }
 
-        // Animation loop
+        // Animation loop - optimized for modern GPUs
         function animate() {
-            // Semi-transparent background for trail effect
+            // Clear with compositing for trail effect (faster than fillRect)
+            ctx.globalCompositeOperation = 'destination-out';
             ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-over';
 
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
+            // Batch particle updates and draws
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
 
             particleAnimationId = requestAnimationFrame(animate);
         }
@@ -838,23 +850,32 @@
                 const slide = document.createElement('div');
                 slide.className = 'swiper-slide';
 
-                // Use full resolution images for quality
+                // Use full resolution for quality
                 const fullSrc = img.paths.image;
 
-                // Load first 3 images immediately, rest lazily
+                // Load first 3 images immediately with decode(), rest lazily
                 if (index < 3) {
                     slide.innerHTML = `
                         <img
                             src="${fullSrc}"
                             alt="${img.title || ''}"
+                            decoding="async"
                         >
                     `;
+                    // Use Image.decode() API for modern browsers
+                    const imgEl = slide.querySelector('img');
+                    if (imgEl && imgEl.decode) {
+                        imgEl.decode().catch(() => {
+                            // Fallback if decode fails
+                        });
+                    }
                 } else {
                     slide.innerHTML = `
                         <img
                             class="swiper-lazy"
                             data-src="${fullSrc}"
                             alt="${img.title || ''}"
+                            decoding="async"
                         >
                         <div class="swiper-lazy-preloader"></div>
                     `;
@@ -898,9 +919,9 @@
         if (useVirtual) {
             swiperConfig.virtual = {
                 slides: images.map((img, index) => {
-                    // Use full resolution for quality
+                    // Use full resolution for quality with async decoding
                     const fullSrc = img.paths.image;
-                    return `<img src="${fullSrc}" alt="${img.title || ''}" />`;
+                    return `<img src="${fullSrc}" alt="${img.title || ''}" decoding="async" />`;
                 }),
                 cache: false,
                 addSlidesBefore: 2,
@@ -989,10 +1010,12 @@
         }
     }
 
-    // Update UI elements
+    // Update UI elements - debounced to prevent flicker
+    let uiUpdatePending = false;
     function updateUI(container) {
-        if (!currentSwiper) return;
+        if (!currentSwiper || uiUpdatePending) return;
 
+        uiUpdatePending = true;
         requestAnimationFrame(() => {
             const current = currentSwiper.activeIndex + 1;
             const total = currentSwiper.slides.length || currentImages.length;
@@ -1000,7 +1023,9 @@
             // Update counter
             if (pluginConfig.showCounter) {
                 const counter = container.querySelector('.image-deck-counter');
-                if (counter) counter.textContent = `${current} of ${total}`;
+                if (counter && counter.textContent !== `${current} of ${total}`) {
+                    counter.textContent = `${current} of ${total}`;
+                }
             }
 
             // Update progress bar
@@ -1010,6 +1035,8 @@
                     progress.style.transform = `scaleX(${current / total})`;
                 }
             }
+
+            uiUpdatePending = false;
         });
     }
 

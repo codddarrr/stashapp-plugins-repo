@@ -60,6 +60,8 @@
     /* GPU acceleration for swiper */
     transform: translateZ(0);
     backface-visibility: hidden;
+    will-change: transform;
+    contain: layout style paint;
 }
 
 .swiper-wrapper {
@@ -73,8 +75,7 @@
     align-items: center;
     justify-content: center;
     background: transparent;
-    /* GPU acceleration */
-    transform: translateZ(0);
+    /* GPU acceleration - DO NOT set transform here, Swiper controls it for animations */
     backface-visibility: hidden;
     will-change: transform, opacity;
 }
@@ -91,6 +92,8 @@
     /* GPU acceleration */
     transform: translateZ(0);
     backface-visibility: hidden;
+    /* Async image decode */
+    content-visibility: auto;
     /* Subtle glow effect */
     filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.3));
 }
@@ -133,6 +136,10 @@
     justify-content: space-between;
     padding: 0 20px;
     pointer-events: none;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: layout style paint;
 }
 
 .image-deck-topbar > * {
@@ -169,6 +176,11 @@
     margin-left: 10px;
     /* Prevent layout shift */
     min-width: 80px;
+    /* GPU acceleration to prevent flicker */
+    will-change: contents;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Topbar buttons - shared styles */
@@ -228,6 +240,7 @@
     /* GPU acceleration */
     will-change: transform;
     backface-visibility: hidden;
+    contain: layout style paint;
 }
 
 .image-deck-info-btn,
@@ -326,7 +339,31 @@
     contain: layout style paint;
 }
 
-/* Mobile optimizations */
+/* Mobile optimizations - disable expensive GPU operations */
+.mobile-optimized .image-deck-topbar,
+.mobile-optimized .image-deck-controls,
+.mobile-optimized .image-deck-speed,
+.mobile-optimized .image-deck-close,
+.mobile-optimized .image-deck-fullscreen,
+.mobile-optimized .image-deck-strobe-btn,
+.mobile-optimized .image-deck-metadata-modal {
+    backdrop-filter: none !important; /* Extremely expensive on mobile */
+    -webkit-backdrop-filter: none !important;
+}
+
+.mobile-optimized .image-deck-controls {
+    background: rgba(0,0,0,0.85) !important; /* Solid bg instead of blur */
+}
+
+.mobile-optimized .image-deck-metadata-modal {
+    background: rgba(0, 0, 0, 0.98) !important; /* Nearly solid for performance */
+}
+
+.mobile-optimized .swiper-slide img {
+    filter: none !important; /* Remove drop-shadow on mobile */
+}
+
+/* Mobile layout adjustments */
 @media (max-width: 768px) {
     .image-deck-controls {
         bottom: 20px;
@@ -344,16 +381,6 @@
         height: 48px;
         font-size: 20px;
         bottom: 70px;
-    }
-
-    /* Reduce effects on mobile for better performance */
-    .swiper-3d .swiper-slide {
-        transform-style: flat !important;
-    }
-
-    /* Use simpler transitions on mobile */
-    * {
-        transition-duration: 0.2s !important;
     }
 }
 
@@ -386,6 +413,10 @@
     pointer-events: none;
     z-index: 1;
     opacity: 0.6;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
 }
 
 /* Strobe overlay */
@@ -400,6 +431,10 @@
     background: white;
     opacity: 0;
     transition: opacity 0.05s ease-out;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: opacity;
 }
 
 /* Ambient gradient overlay */
@@ -419,6 +454,10 @@
     );
     mix-blend-mode: screen;
     animation: ambientPulse 8s ease-in-out infinite;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: opacity;
 }
 
 @keyframes ambientPulse {
@@ -460,6 +499,10 @@
     overflow: hidden;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+    /* GPU acceleration */
+    will-change: transform;
+    backface-visibility: hidden;
+    contain: layout style paint;
 }
 
 .image-deck-metadata-modal.active {
